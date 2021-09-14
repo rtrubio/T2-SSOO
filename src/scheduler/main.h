@@ -11,17 +11,6 @@ typedef struct process {
 
 Process* process_init(int pid, char nombre, int fabrica);
 
-/*
-Process* process_init(int pid, char nombre, int fabrica){
-    Process* new_process = malloc(sizeof(Process));
-    new_process -> pid = pid;
-    new_process -> nombre = nombre;
-    new_process -> fabrica = fabrica;
-    new_process -> estado = "READY";
-    return new_process;
-}
-*/
-
 typedef struct queue {
     int cantidad;
     Process *inicio;
