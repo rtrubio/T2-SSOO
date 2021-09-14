@@ -3,13 +3,21 @@
 // Define the struct
 typedef struct process {
   int pid;
-  char* nombre;
+  char** nombre;
   int fabrica;
   char* estado;
-  struct process *next; 
+  struct process *next;
+  
+  // Estadisticas
+  int elecciones;
+  int interrupciones;
+  int turnaround_time;
+  int response_time;
+  int waiting_time;
+
 } Process;
 
-Process* process_init(int pid, char nombre, int fabrica);
+Process* process_init(int pid, char **nombre, int fabrica);
 
 typedef struct queue {
     int cantidad;
