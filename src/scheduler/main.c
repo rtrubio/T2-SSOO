@@ -11,6 +11,7 @@ Process* process_init(int pid, char **nombre, int tiempo_inicio, int fabrica, in
     new_process -> estado = "READY";
     new_process -> tiempo_inicio = tiempo_inicio;
     new_process -> cantidad_rafagas = cantidad_rafagas;
+    new_process -> quantum = 0;
     new_process -> elecciones = 0;
     new_process -> interrupciones = 0;
     new_process -> turnaround_time = 0;
@@ -41,7 +42,7 @@ Cpu* cpu_init(){
 // encontrar el process FIFO que este ready y extraerlo de la cola
 
 void scheduler(Queue* queue, Cpu* cpu){
-    // sale el process se la CPU al final de la cola
+    //------ sale el process se la CPU al final de la cola
     queue -> last -> next = cpu -> exec;
     queue -> last = cpu -> exec;
     cpu -> exec = NULL;
@@ -54,6 +55,7 @@ void scheduler(Queue* queue, Cpu* cpu){
       }
       elegido = elegido->next;
     }
+    //-----------------------------------------------------
     
     // aqui calcular quantum del proceso elegido (almacenar o retornar el quantum)
 
@@ -139,6 +141,8 @@ int main(int argc, char **argv)
   Cpu* cpu = cpu_init();
   Process* new_process;
   Queue* new_queue;
+  Queue* process_queue;
+
   int contador_pid = 0;
 
   InputFile *file = read_file(argv[1]);
@@ -175,6 +179,7 @@ int main(int argc, char **argv)
 
         if(contador_pid == 1){
           new_queue = queue_init(file->len);
+          process_queue = queue_init(file->len);
           printf("Nueva cola de largo: %i\n", new_queue->cantidad);
           new_queue->inicio = new_process;
           new_queue->last = new_process;
@@ -199,10 +204,29 @@ int main(int argc, char **argv)
       }
     }
     //cpu->exec->rafagas  es del tipo [0][0][14][3][6][3][12]
-    cpu->exec->rafagas[indice_rafaga] = cpu->exec->rafagas[indice_rafaga]-1;
+    cpu->exec->rafagas[indice_rafaga] = (cpu->exec->rafagas[indice_rafaga])-1;
+    cpu->exec->quantum = (cpu->exec->quantum)-1;
     // si queda la casilla de la rafaga en 0: cede la cpu
     if(cpu->exec->rafagas[indice_rafaga] == 0){
-      
+      if(indice_rafaga == (cpu->exec->cantidad_rafagas-1){
+        // aqui entra si consumimos la ultima rafaga del proceso
+        // sale del sistema
+        cpu->exec->estado = "FINISHED";
+        cpu -> exec = NULL;
+      }else{
+        // aqui entra si no es la ultima rafaga: poner waiting y a la cola
+        cpu->exec->estado = 'WAITING';
+        process_queue -> last -> next = cpu -> exec;
+        process_queue -> last = cpu -> exec;
+        cpu -> exec = NULL;
+      }
+    }else if(cpu->exec->quantum == 0){
+      // pasa a ready y se va al final de la cola
+      cpu->exec->estado = "READY";
+      process_queue -> last -> next = cpu -> exec;
+      process_queue -> last = cpu -> exec;
+      cpu -> exec = NULL;
+
     }
      
   }
