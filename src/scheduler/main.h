@@ -7,6 +7,8 @@ typedef struct process {
   int fabrica;
   char* estado;
   struct process *next;
+  int tiempo_inicio;
+  int* rafagas;
   
   // Estadisticas
   int elecciones;
@@ -17,22 +19,20 @@ typedef struct process {
 
 } Process;
 
-Process* process_init(int pid, char **nombre, int fabrica);
+Process* process_init(int pid, char **nombre, int tiempo_inicio, int fabrica);
 
 typedef struct queue {
     int cantidad;
     Process *inicio;
-    Process *final;
+    Process *last;
 } Queue;
 
 Queue* queue_init(int cantidad);
 
-/*
-Queue* queue_init(int cantidad){
-    Queue* new_queue = malloc(sizeof(Queue));
-    new_queue -> cantidad = cantidad;
-    new_queue -> inicio = NULL;
-    new_queue -> final = NULL;
-    return new_queue;
-}
-*/
+typedef struct cpu {
+    Process *exec;
+} Cpu;
+
+Cpu* cpu_init();
+
+
