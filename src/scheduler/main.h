@@ -8,6 +8,7 @@ typedef struct process {
   char* estado;
   struct process *next;
   int tiempo_inicio;
+  int cantidad_rafagas;
   int* rafagas;
   
   // Estadisticas
@@ -19,7 +20,7 @@ typedef struct process {
 
 } Process;
 
-Process* process_init(int pid, char **nombre, int tiempo_inicio, int fabrica);
+Process* process_init(int pid, char **nombre, int tiempo_inicio, int fabrica, int cantidad_rafagas);
 
 typedef struct queue {
     int cantidad;
@@ -28,6 +29,8 @@ typedef struct queue {
 } Queue;
 
 Queue* queue_init(int cantidad);
+int quantum(Queue* queue, int q, Process* process);
+
 
 typedef struct cpu {
     Process *exec;
