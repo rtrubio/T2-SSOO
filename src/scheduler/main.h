@@ -10,6 +10,7 @@ typedef struct process {
   int tiempo_inicio;
   int cantidad_rafagas;
   int* rafagas;
+  int quantum;
   
   // Estadisticas
   int elecciones;

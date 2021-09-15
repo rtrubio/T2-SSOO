@@ -227,8 +227,40 @@ int main(int argc, char **argv)
       process_queue -> last = cpu -> exec;
       cpu -> exec = NULL;
 
+    }else{
+      continue;
+    }  
+  }
+  // punto 2: recorrer la lista ligada de todos los procesos para encontrar
+  // uno que tenga tiempo de inicio == tiempo. y meterlo a la cola
+  Process* prioridad;
+  int menor_n_fabrica = 10;
+  char menor_n_proceso;
+  
+  // contamos cuantos son los procesos a ingresar
+  int ctdad_procesos_init = 0;
+  Process* aux_init = new_queue->inicio;
+  while(aux_init != NULL){
+    if(aux_init->tiempo_inicio == tiempo){
+      ctdad_procesos_init++;
     }
-     
+    aux_init = aux_init->next;
+  }
+
+  //armamos un array con los procesos a entrar
+  Process* lista_espera[ctdad_procesos_init];
+  
+
+  //recorremos la queue de todos los procesos:
+  Process* aux = new_queue->inicio;
+  while(aux != NULL){
+    if(aux->tiempo_inicio == tiempo){
+      if(aux->fabrica < menor_n_fabrica){
+        prioridad = aux;
+      }
+    }
+
+
   }
 
   tiempo++;
