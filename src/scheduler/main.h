@@ -9,7 +9,7 @@ typedef struct process {
   struct process *next;
   int tiempo_inicio;
   int cantidad_rafagas;
-  int* rafagas;
+  int** rafagas;
   int quantum;
   
   // Estadisticas
