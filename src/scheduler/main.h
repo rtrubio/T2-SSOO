@@ -1,6 +1,15 @@
 #pragma once
 
 // Define the struct
+
+typedef struct rafaga {
+  int duracion;
+  int restante;
+  struct rafaga *next;
+} Rafaga;
+
+Rafaga* rafaga_init(int duracion);
+
 typedef struct process {
   int pid;
   char** nombre;
@@ -9,7 +18,8 @@ typedef struct process {
   struct process *next;
   int tiempo_inicio;
   int cantidad_rafagas;
-  int** rafagas;
+  Rafaga* rafaga_actual;
+  //int** rafagas;
   int quantum;
   
   // Estadisticas

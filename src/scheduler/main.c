@@ -17,6 +17,7 @@ Process* process_init(int pid, char **nombre, int tiempo_inicio, int fabrica, in
     new_process -> turnaround_time = 0;
     new_process -> response_time = 0;
     new_process -> waiting_time = 0;
+    new_process -> rafaga_actual = NULL;
     printf("retornando nuevo proceso\n");
 
     
@@ -36,6 +37,14 @@ Cpu* cpu_init(){
   Cpu* cpu = malloc(sizeof(Cpu));
   cpu -> exec = NULL;
   return cpu;
+};
+
+Rafaga* rafaga_init(int duracion){
+  Rafaga* new_rafaga = malloc(sizeof(Rafaga));
+  new_rafaga -> duracion = duracion;
+  new_rafaga -> restante = duracion;
+  new_rafaga -> next = NULL;
+  return new_rafaga;
 };
 
 // función scheduler:
@@ -162,6 +171,36 @@ int main(int argc, char **argv)
         printf("nombre: %s\n",new_process->nombre);
         printf("estado: %s\n",new_process->estado);
         
+        for (int i = 0; i < 2*(atoi(line[3]))-1; i++){
+          Rafaga* new_rafaga = rafaga_init(atoi(line[4+i])); 
+          //printf("1\n");
+          // caso base cuando es la primera rafaga a agregar:
+          if(i==0){
+            //printf("2\n");
+            new_process->rafaga_actual = new_rafaga;
+          }else{
+            //printf("3\n");
+            // hay que anexar new_rafaga a la ultima rafaga de la linked list
+            Rafaga* aux_rafaga = new_process->rafaga_actual;
+            printf("aux_rafaga duracion %i\n", new_process->rafaga_actual->duracion);
+            //printf("4\n");
+            while(aux_rafaga->next != NULL){
+              //printf("5\n");
+              aux_rafaga = aux_rafaga->next;
+            }
+            //printf("6\n");
+            aux_rafaga->next = new_rafaga;
+          }
+          // comprobar rafagas bien creadas:
+          //Rafaga* aux_rafaga = new_process->rafaga_actual;
+
+        }
+        while(new_process->rafaga_actual != NULL){
+            printf("***** %s duracion rafaga es: %i\n",new_process->nombre, new_process->rafaga_actual->restante);
+            new_process->rafaga_actual = new_process->rafaga_actual->next;
+            }
+
+        /*
         int *rafagas[atoi(line[3])];
         for (int i = 0; i < 2*(atoi(line[3]))-1; i++){
           printf("i: %i input: %i\n",i, atoi(line[4+i]));
@@ -170,30 +209,30 @@ int main(int argc, char **argv)
           rafagas[i] = raf;
         }
         // int *array_ptr = rafagas;
-        
+    
         new_process->rafagas = rafagas;
         // rafagas[0] seria un puntero que podemos referir en los struct process
-        
+      
         printf("rafaga: %i \n", new_process->rafagas[0]);
         printf("rafaga: %i \n", new_process->rafagas[1]);
         printf("rafaga: %i \n", new_process->rafagas[2]);
         printf("rafaga: %i \n", new_process->rafagas[3]);
         printf("rafaga: %i \n", new_process->rafagas[4]);
-        
+        */
 
         if(contador_pid == 1){
           new_queue = queue_init(file->len);
           process_queue = queue_init(file->len);
           printf("Nueva cola de largo: %i\n", new_queue->cantidad);
           new_queue->inicio = new_process;
-          printf("new_queue->inicio->rafaga 0]: %i\n", new_queue->inicio->rafagas[0]);
+          //printf("new_queue->inicio->rafaga 0]: %i\n", new_queue->inicio->rafagas[0]);
           new_queue->last = new_process;
           printf("el primero y ultimo de la fila es %s\n", new_queue->inicio->nombre);
           
         }else{
           new_queue->last->next = new_process;
           new_queue->last = new_process;
-          printf("new_queue->last->rafaga 0]: %i\n", new_queue->last->rafagas[0]);
+          //printf("new_queue->last->rafaga 0]: %i\n", new_queue->last->rafagas[0]);
 
         }
   }
@@ -207,6 +246,7 @@ int main(int argc, char **argv)
   // 1 si es que hay proceso en la CPU:
   if(cpu->exec != NULL){
     printf("estoy ejecutando el proceso %s en la cpu\n", cpu->exec->nombre);
+    /*
     // restarle la rafaga 
     int indice_rafaga = 0;
     // obtenemos el indice de la rafaga que se esta ejecutando
@@ -216,25 +256,41 @@ int main(int argc, char **argv)
         break; //solo quiero el primer indice
       }
     }
-    printf("indice rafaga: %i\n", indice_rafaga);
-    printf("La ctdad de rafagas restantes de %s es %i\n", cpu->exec->nombre, cpu->exec->rafagas[indice_rafaga]);
-    printf("%i %s %s %i %i\n",cpu->exec->pid, cpu->exec->nombre,cpu->exec->estado,cpu->exec->cantidad_rafagas, cpu->exec->rafagas[indice_rafaga]);
+    */
+    //printf("La ctdad de rafagas restantes de %s es %i\n", cpu->exec->nombre, cpu->exec->rafagas[indice_rafaga]);
+    //printf("%i %s %s %i %i\n",cpu->exec->pid, cpu->exec->nombre,cpu->exec->estado,cpu->exec->cantidad_rafagas, cpu->exec->rafagas[indice_rafaga]);
     
     //cpu->exec->rafagas  es del tipo [0][0][14][3][6][3][12]
-    cpu->exec->rafagas[indice_rafaga] = (cpu->exec->rafagas[indice_rafaga])-1;
+
+    // le restamos la ejecucion actual a la rafaga
+    //cpu->exec->rafagas[indice_rafaga] = (cpu->exec->rafagas[indice_rafaga])-1;
+    printf("1\n");
+    printf("restante: %i\n",cpu->exec->rafaga_actual->restante);
+    printf("2\n");
     cpu->exec->quantum = (cpu->exec->quantum)-1;
+    printf("3\n");
     // si queda la casilla de la rafaga en 0: cede la cpu
-    if(cpu->exec->rafagas[indice_rafaga] == 0){
-      if(indice_rafaga == (cpu->exec->cantidad_rafagas-1)){
+    if(cpu->exec->rafaga_actual->restante == 0){
+      printf("4\n");
+      // como termino la rafaga, la eliminamos de la lista ligada de rafagas:
+      cpu->exec->rafaga_actual = cpu->exec->rafaga_actual->next;
+      printf("5\n");
+      if(cpu->exec->rafaga_actual == NULL){
+        printf("6\n");
         // aqui entra si consumimos la ultima rafaga del proceso
         // sale del sistema
         cpu->exec->estado = "FINISHED";
         cpu -> exec = NULL;
+        printf("7\n");
       }else{
+        printf("8\n");
         // aqui entra si no es la ultima rafaga: poner waiting y a la cola
         cpu->exec->estado = 'WAITING';
-        process_queue -> last -> next = cpu -> exec;
+        process_queue -> last -> next = cpu -> exec; // y si process queue esta vacia? al inicio tambien
         process_queue -> last = cpu -> exec;
+        if(process_queue->inicio == NULL){
+          process_queue -> inicio = cpu -> exec;
+        }
         cpu -> exec = NULL;
       }
     }else if(cpu->exec->quantum == 0){
@@ -253,9 +309,9 @@ int main(int argc, char **argv)
     //printf("-- process_queue->incio tiene rafaga[0]: %i --\n", process_queue->inicio->rafagas[0]);
     Process* aux_new = NULL;
     if(process_queue->inicio != NULL){
-      printf("-- process_queue->incio tiene rafaga[0]: %i --\n", process_queue->inicio->rafagas[0]);
+      //printf("-- process_queue->incio tiene rafaga[0]: %i --\n", process_queue->inicio->rafagas[0]);
       aux_new = process_queue->inicio;
-      printf("-- aux_new tiene rafaga[0]: %i --\n", aux_new->rafagas[0]);
+      //printf("-- aux_new tiene rafaga[0]: %i --\n", aux_new->rafagas[0]);
 
     }
     //Process* aux_new = process_queue->inicio;
@@ -280,7 +336,7 @@ int main(int argc, char **argv)
   }
   if(cpu->exec != NULL){
     printf("COLOCAMOS UN PROCESO EN LA CPU\n");
-    printf("%i %s %s %i %i\n",cpu->exec->pid, cpu->exec->nombre,cpu->exec->estado,cpu->exec->cantidad_rafagas, cpu->exec->rafagas[0]);
+    //printf("%i %s %s %i %i\n",cpu->exec->pid, cpu->exec->nombre,cpu->exec->estado,cpu->exec->cantidad_rafagas, cpu->exec->rafagas[0]);
   }
   }
   // punto 2: recorrer la lista ligada de todos los procesos para encontrar
@@ -291,10 +347,10 @@ int main(int argc, char **argv)
   
   // contamos cuantos son los procesos a ingresar
   int ctdad_procesos_init = 0;
-  printf("* new_queue->inicio->rafagas[0]: %i\n", new_queue->inicio->rafagas[0]);
+  //printf("* new_queue->inicio->rafagas[0]: %i\n", new_queue->inicio->rafagas[0]);
   Process* aux_init = new_queue->inicio;
-  printf("* new_queue->inicio->rafagas[0]: %i\n", new_queue->inicio->rafagas[0]);
-  printf("* aux_init rafagas[0]: %i\n", aux_init->rafagas[0]);
+  //printf("* new_queue->inicio->rafagas[0]: %i\n", new_queue->inicio->rafagas[0]);
+  //printf("* aux_init rafagas[0]: %i\n", aux_init->rafagas[0]);
   while(aux_init != NULL){
     if(aux_init->tiempo_inicio == tiempo){
       ctdad_procesos_init++;
@@ -342,7 +398,7 @@ int main(int argc, char **argv)
       if(prioridad != NULL){
         prioridad -> next = NULL;
       }
-      printf("el proceso %s salio de new_queue  con rafaga[0]: %i\n", prioridad->nombre, prioridad->rafagas[0]);
+      //printf("el proceso %s salio de new_queue  con rafaga[0]: %i\n", prioridad->nombre, prioridad->rafagas[0]);
       // hasta aqui ya sacamos el proceso_priorida de new_queue
       //falta ingresarlo a process_queue
         
