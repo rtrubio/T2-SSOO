@@ -259,11 +259,24 @@ int main(int argc, char **argv)
       }
     }
     // aqui ya elegimos el Process* prioridad
+      Process* aux = new_queue->inicio;
+      while(aux != NULL){
+        if(prioridad != NULL){
+          prioridad -> next = NULL;
+        }
+        if(prioridad == new_queue -> inicio){
+          new_queue->inicio = prioridad->next;
+        }
+        if(prioridad == new_queue -> last){ //solo pasaria cuando hay 1 process
+          new_queue->last = NULL;
+        }
+        if(aux -> next == prioridad){
+          aux -> next = prioridad->next;
+          break;
+        }
+    }
 
-
-
-
-      prioridad->estado = "READY";
+      prioridad->estado = "READY"; // creo que ya esta en READY
       process_queue -> last -> next = prioridad;
       process_queue -> last = prioridad;
       prioridad = NULL;
