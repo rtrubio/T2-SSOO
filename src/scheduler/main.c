@@ -247,21 +247,29 @@ int main(int argc, char **argv)
     aux_init = aux_init->next;
   }
 
-  //armamos un array con los procesos a entrar
-  Process* lista_espera[ctdad_procesos_init];
-  
-
-  //recorremos la queue de todos los procesos:
-  Process* aux = new_queue->inicio;
-  while(aux != NULL){
+  for (int i = 0; i < ctdad_procesos_init; i++){
+    //recorrer new_queue
+    //traspasar de new_queue a process_queue el de mayor prioridad
+    Process* aux = new_queue->inicio;
+    while(aux != NULL){
     if(aux->tiempo_inicio == tiempo){
       if(aux->fabrica < menor_n_fabrica){
         prioridad = aux;
+        }
       }
     }
+    // aqui ya elegimos el Process* prioridad
 
 
+
+
+      prioridad->estado = "READY";
+      process_queue -> last -> next = prioridad;
+      process_queue -> last = prioridad;
+      prioridad = NULL;
   }
+
+
 
   tiempo++;
   }
@@ -272,5 +280,4 @@ int main(int argc, char **argv)
   free_queue(new_queue);
 
 }
-
 
