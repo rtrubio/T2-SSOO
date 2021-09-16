@@ -193,6 +193,10 @@ int main(int argc, char **argv)
   
   int tiempo = 0;
   while(1){
+  if(tiempo==25){
+    break;
+  }
+  printf("** ejecutando ciclo while numero %i **\n", tiempo);
   // 1 si es que hay proceso en la CPU:
   if(cpu->exec != NULL){
     // restarle la rafaga 
@@ -208,7 +212,7 @@ int main(int argc, char **argv)
     cpu->exec->quantum = (cpu->exec->quantum)-1;
     // si queda la casilla de la rafaga en 0: cede la cpu
     if(cpu->exec->rafagas[indice_rafaga] == 0){
-      if(indice_rafaga == (cpu->exec->cantidad_rafagas-1){
+      if(indice_rafaga == (cpu->exec->cantidad_rafagas-1)){
         // aqui entra si consumimos la ultima rafaga del proceso
         // sale del sistema
         cpu->exec->estado = "FINISHED";
@@ -230,6 +234,8 @@ int main(int argc, char **argv)
     }else{
       continue;
     }  
+  }else{
+    printf("[t = %i] No hay ningun proceso ejecutando en la cpu\n",tiempo);
   }
   // punto 2: recorrer la lista ligada de todos los procesos para encontrar
   // uno que tenga tiempo de inicio == tiempo. y meterlo a la cola
@@ -246,44 +252,63 @@ int main(int argc, char **argv)
     }
     aux_init = aux_init->next;
   }
+  
+  printf("la ctdad_procesos_init es %i\n", ctdad_procesos_init);
 
   for (int i = 0; i < ctdad_procesos_init; i++){
     //recorrer new_queue
     //traspasar de new_queue a process_queue el de mayor prioridad
+    printf("1\n");
     Process* aux = new_queue->inicio;
     while(aux != NULL){
-    if(aux->tiempo_inicio == tiempo){
-      if(aux->fabrica < menor_n_fabrica){
-        prioridad = aux;
+      printf("2\n");
+      if(aux->tiempo_inicio == tiempo){
+        printf("3\n");
+        if(aux->fabrica < menor_n_fabrica){
+          printf("4\n");
+          prioridad = aux;
+          }
         }
-      }
+      aux = aux -> next;
     }
+    printf("5\n");
+
     // aqui ya elegimos el Process* prioridad
-      Process* aux = new_queue->inicio;
-      while(aux != NULL){
-        if(prioridad != NULL){
-          prioridad -> next = NULL;
-        }
+      Process* aux2 = new_queue->inicio;
+      printf("6\n");
+      while(aux2 != NULL){
+        printf("7\n");
         if(prioridad == new_queue -> inicio){
           new_queue->inicio = prioridad->next;
         }
         if(prioridad == new_queue -> last){ //solo pasaria cuando hay 1 process
           new_queue->last = NULL;
         }
-        if(aux -> next == prioridad){
-          aux -> next = prioridad->next;
+        if(aux2 -> next == prioridad){
+          aux2 -> next = prioridad->next;
           break;
         }
-    }
-
+        aux2 = aux2 -> next;
+      }
+      if(prioridad != NULL){
+        prioridad -> next = NULL;
+      }
+      printf("el proceso %s salio de new_queue \n", prioridad->nombre);
+      // hasta aqui ya sacamos el proceso_priorida de new_queue
+      //falta ingresarlo a process_queue
+        
       prioridad->estado = "READY"; // creo que ya esta en READY
-      process_queue -> last -> next = prioridad;
-      process_queue -> last = prioridad;
+      printf("8\n");
+      if (process_queue -> last == NULL){
+        process_queue -> last = prioridad;
+      }else{
+        process_queue -> last -> next = prioridad;
+        process_queue -> last = prioridad;
+      }
+      printf("9\n");
       prioridad = NULL;
+      printf("el proceso %s es el ultimo de process_queue", process_queue->last->nombre);
   }
-
-
-
   tiempo++;
   }
 
