@@ -258,26 +258,26 @@ int main(int argc, char **argv)
   for (int i = 0; i < ctdad_procesos_init; i++){
     //recorrer new_queue
     //traspasar de new_queue a process_queue el de mayor prioridad
-    printf("1\n");
+    //printf("1\n");
     Process* aux = new_queue->inicio;
     while(aux != NULL){
-      printf("2\n");
+      //printf("2\n");
       if(aux->tiempo_inicio == tiempo){
-        printf("3\n");
+        //printf("3\n");
         if(aux->fabrica < menor_n_fabrica){
-          printf("4\n");
+          //printf("4\n");
           prioridad = aux;
           }
         }
       aux = aux -> next;
     }
-    printf("5\n");
+    //printf("5\n");
 
     // aqui ya elegimos el Process* prioridad
       Process* aux2 = new_queue->inicio;
-      printf("6\n");
+      //printf("6\n");
       while(aux2 != NULL){
-        printf("7\n");
+        //printf("7\n");
         if(prioridad == new_queue -> inicio){
           new_queue->inicio = prioridad->next;
         }
@@ -298,14 +298,15 @@ int main(int argc, char **argv)
       //falta ingresarlo a process_queue
         
       prioridad->estado = "READY"; // creo que ya esta en READY
-      printf("8\n");
+      //printf("8\n");
       if (process_queue -> last == NULL){
+        process_queue -> inicio = prioridad;
         process_queue -> last = prioridad;
       }else{
         process_queue -> last -> next = prioridad;
         process_queue -> last = prioridad;
       }
-      printf("9\n");
+      //printf("9\n");
       prioridad = NULL;
       printf("el proceso %s es el ultimo de process_queue", process_queue->last->nombre);
   }
@@ -314,8 +315,8 @@ int main(int argc, char **argv)
 
   //int quantum1 = quantum(new_queue, q, new_queue->inicio);
   //printf("el quantum es %i\n", quantum1);
-  free_process(new_queue->inicio);
+  free_process(process_queue->inicio);
   free_queue(new_queue);
-
+  free_queue(process_queue);
 }
 
